@@ -15,6 +15,8 @@
 /* http://php.net/manual/en/ref.zip.php */
 
 include_once(__DIR__.'/goto_dir.php');
+
+
 function unzip($file, $targetdir){
     $zip = zip_open($file);
 	if ( substr($targetdir,-1) != '/' && substr($targetdir,-1) != "\\" )
@@ -26,8 +28,8 @@ function unzip($file, $targetdir){
     if(is_resource($zip)){
         $tree = "";
         while(($zip_entry = zip_read($zip)) !== false){
-			chdir($targetdir);
-            echo "Unpacking ".zip_entry_name($zip_entry)."\n";
+			//goto_dir($targetdir);
+            //echo "Unpacking ".zip_entry_name($zip_entry)."\n";
             if(($last = strrpos(zip_entry_name($zip_entry), '\\')) !== false ||
 			   ($last = strrpos(zip_entry_name($zip_entry), '/')) !== false ){
                 $dir = substr(zip_entry_name($zip_entry), 0, $last);
@@ -38,8 +40,10 @@ function unzip($file, $targetdir){
                 }
 
                 if(strlen(trim($file)) > 0){
-					chdir($targetdir.$dir);
-                    $return = @file_put_contents($file, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
+                    $cwd    = getcwd();
+					goto_dir($dir);
+                    chdir($cwd);
+                    $return = @file_put_contents(zip_entry_name($zip_entry), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
                     if($return === false){
                         die("Unable to write file $dir/$file\n");
                     }

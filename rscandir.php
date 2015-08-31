@@ -18,17 +18,23 @@
 // flat = true produces an array of strings,
 //		e.g. path/to/dir
 //		e.g. array(path)=>array(to)=>array(dir)=>file
-function	rscandir($dir) {
+function	rscandir($dir, $get_dirs=false) {
     $files	= scandir($dir);
     $arr	= array();
     foreach ( $files as $file ) {
-	if ( $file == '.' || $file == '..' )
-	    continue;
+		if ( $file == '.' || $file == '..' )
+		    continue;
 
-	if ( is_dir($dir.'/'.$file) )
-	    $arr	= array_merge($arr, rscandir($dir.'/'.$file));
-	else
-	    array_push($arr, $dir.'/'.$file);
+		if ( is_dir($dir.'/'.$file) ) {
+		    $arr	= array_merge($arr, rscandir($dir.'/'.$file, $get_dirs));
+		    if ( $get_dirs )
+		    	array_push($arr,$dir.'/'.$file);
+		}
+		else {
+			if ( !$get_dirs )
+				array_push($arr, $dir.'/'.$file);
+		}
+	    
     }
     
     return $arr;
